@@ -10,6 +10,18 @@ type RoastSection = {
   raw: string;
 };
 
+type RoastBuckets = {
+  good: string[];
+  confusing: string[];
+  improvements: string[];
+};
+
+const defaultRoastBuckets: RoastBuckets = {
+  good: [],
+  confusing: [],
+  improvements: [],
+};
+
 const parseRoast = (text: string): RoastSection => {
   const scoreMatch = text.match(/Score[:\-]?\s*(.*)/i);
   const lines = text.split(/\r?\n/).map((line) => line.trim());
@@ -50,7 +62,13 @@ const parseRoast = (text: string): RoastSection => {
 
     if (currentSection && ["good", "confusing", "improvements"].includes(currentSection)) {
       const bullet = line.replace(/^[\-\u2022]\s*/, "");
-      structured[currentSection as keyof RoastSection].push(bullet);
+      const key = currentSection as keyof RoastSection;
+
+      if (!Array.isArray(structured[key])) {
+        structured[key] = [];
+      }
+
+      structured[key].push(bullet);
     }
   }
 
@@ -155,10 +173,9 @@ export default function Home() {
           <p className="text-xs text-neutral-500">
             Powered by OpenRouter. No login required yet.
           </p>
-            <p className="text-xs text-neutral-500">
-              No sign-up • Free • Built for indie founders
-            </p>
-          <div ref={heroRef} />
+          <p className="text-xs text-neutral-500">
+            No sign-up • Free • Built for indie founders
+          </p>
         </div>
       </section>
 
