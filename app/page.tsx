@@ -11,6 +11,7 @@ type RoastSection = {
 };
 
 type RoastBuckets = {
+  score?: string;
   good: string[];
   confusing: string[];
   improvements: string[];
@@ -21,6 +22,7 @@ const parseRoast = (text: string): RoastSection => {
   const lines = text.split(/\r?\n/).map((line) => line.trim());
   let currentSection: keyof RoastSection | null = null;
   const structured: RoastBuckets = {
+    score: undefined,
     good: [],
     confusing: [],
     improvements: [],
