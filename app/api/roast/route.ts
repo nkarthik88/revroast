@@ -2,6 +2,25 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
+    await req.json(); // read body to satisfy request, ignoring url for now
+
+    return NextResponse.json({
+      score: "6/10",
+      good: ["Clear headline", "Simple layout"],
+      confusing: ["Value proposition unclear"],
+      improvements: ["Add testimonials", "Clarify pricing"],
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to load mock roast" },
+      { status: 500 }
+    );
+  }
+}
+import { NextResponse } from "next/server";
+
+export async function POST(req: Request) {
+  try {
     const { url } = await req.json();
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {

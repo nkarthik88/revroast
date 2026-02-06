@@ -1,82 +1,18 @@
- "use client";
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type RoastSection = {
+type RoastResult = {
   score: string;
   good: string[];
   confusing: string[];
   improvements: string[];
-  raw: string;
-};
-
-type RoastBuckets = {
-  score?: string;
-  good: string[];
-  confusing: string[];
-  improvements: string[];
-};
-
-const parseRoast = (text: string): RoastSection => {
-  const scoreMatch = text.match(/Score[:\-]?\s*(.*)/i);
-  const lines = text.split(/\r?\n/).map((line) => line.trim());
-  let currentSection: keyof RoastSection | null = null;
-  const structured: RoastBuckets = {
-    score: undefined,
-    good: [],
-    confusing: [],
-    improvements: [],
-  };
-
-  for (const line of lines) {
-    if (!line) continue;
-
-    const normalized = line.toLowerCase();
-    if (normalized.startsWith("score")) {
-      currentSection = "score";
-      continue;
-    }
-    if (normalized.includes("what") && normalized.includes("good")) {
-      currentSection = "good";
-      continue;
-    }
-    if (normalized.includes("what") && normalized.includes("confusing")) {
-      currentSection = "confusing";
-      continue;
-    }
-    if (normalized.includes("improve")) {
-      currentSection = "improvements";
-      continue;
-    }
-
-    if (currentSection === "score" && !structured.score) {
-      structured.score = line;
-      continue;
-    }
-
-    if (
-      currentSection === "good" ||
-      currentSection === "confusing" ||
-      currentSection === "improvements"
-    ) {
-      const bullet = line.replace(/^[\-\u2022]\s*/, "");
-      structured[currentSection].push(bullet);
-    }
-  }
-
-  return {
-    score: scoreMatch?.[1]?.trim() ?? "",
-    good: structured.good,
-    confusing: structured.confusing,
-    improvements: structured.improvements,
-    raw: text,
-  };
 };
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<RoastSection | null>(null);
+  const [result, setResult] = useState<RoastResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -97,8 +33,8 @@ export default function Home() {
         body: JSON.stringify({ url }),
       });
 
-      const data = await res.json();
-      setResult(parseRoast(data.result));
+      const data: RoastResult = await res.json();
+      setResult(data);
     } catch {
       setError("We couldn't reach the roast engine. Try again in a moment.");
     } finally {
@@ -122,7 +58,6 @@ export default function Home() {
   }, [result]);
 
   const scoreDisplay = useMemo(() => result?.score ?? "", [result]);
-  const isResultEmpty = !result?.good.length && !result?.confusing.length && !result?.improvements.length;
 
   return (
     <main className="min-h-screen bg-[#060606] text-white flex flex-col">
@@ -239,14 +174,6 @@ export default function Home() {
                 animate={revealed}
               />
             </div>
-            {isResultEmpty && (
-              <div className="rounded-2xl border border-neutral-800 bg-white/5 p-6 text-neutral-400">
-                The AI responded, but we could not extract structured sections from the reply. Here’s the raw output:
-                <pre className="mt-3 whitespace-pre-wrap text-sm text-neutral-200">
-                  {result.raw}
-                </pre>
-              </div>
-            )}
             <div className="rounded-2xl border border-neutral-800 bg-gradient-to-r from-white/5 to-white/0 p-6 text-white">
               <p className="text-lg font-semibold">
                 Want this for your own product? Fix the top 3 issues before you launch.
