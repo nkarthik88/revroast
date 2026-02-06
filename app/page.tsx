@@ -16,22 +16,14 @@ type RoastBuckets = {
   improvements: string[];
 };
 
-const defaultRoastBuckets: RoastBuckets = {
-  good: [],
-  confusing: [],
-  improvements: [],
-};
-
 const parseRoast = (text: string): RoastSection => {
   const scoreMatch = text.match(/Score[:\-]?\s*(.*)/i);
   const lines = text.split(/\r?\n/).map((line) => line.trim());
   let currentSection: keyof RoastSection | null = null;
-  const structured: RoastSection = {
-    score: scoreMatch?.[1]?.trim() ?? "",
+  const structured: RoastBuckets = {
     good: [],
     confusing: [],
     improvements: [],
-    raw: text,
   };
 
   for (const line of lines) {
@@ -60,19 +52,23 @@ const parseRoast = (text: string): RoastSection => {
       continue;
     }
 
-    if (currentSection && ["good", "confusing", "improvements"].includes(currentSection)) {
+    if (
+      currentSection === "good" ||
+      currentSection === "confusing" ||
+      currentSection === "improvements"
+    ) {
       const bullet = line.replace(/^[\-\u2022]\s*/, "");
-      const key = currentSection as keyof RoastSection;
-
-      if (!Array.isArray(structured[key])) {
-        structured[key] = [];
-      }
-
-      structured[key].push(bullet);
+      structured[currentSection].push(bullet);
     }
   }
 
-  return structured;
+  return {
+    score: scoreMatch?.[1]?.trim() ?? "",
+    good: structured.good,
+    confusing: structured.confusing,
+    improvements: structured.improvements,
+    raw: text,
+  };
 };
 
 export default function Home() {
