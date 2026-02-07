@@ -1,6 +1,7 @@
-"use client";
+ "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 type RoastResult = {
   score: string;
@@ -13,6 +14,8 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RoastResult | null>(null);
+  const searchParams = useSearchParams();
+  const isPro = searchParams.get("pro") === "true";
   const [error, setError] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -69,8 +72,14 @@ export default function Home() {
           <h1 className="text-4xl sm:text-5xl font-semibold leading-tight">
             Your landing page isn’t converting. RevRoast tells you exactly why — in 30 seconds.
           </h1>
-          <p className="text-lg text-neutral-300 max-w-3xl">
-            Paste your SaaS URL and get an instant, brutally honest AI teardown of your copy, clarity, and conversion blockers — built for founders, not marketers.
+          <p className="text-lg text-neutral-300 max-w-3xl whitespace-pre-line">
+            What you get in 30 seconds:
+            {"\n"}• A clear conversion score
+            {"\n"}• What’s working (and why)
+            {"\n"}• What’s confusing visitors
+            {"\n"}• Exact improvements to increase signups
+            {"\n"}
+            {"\n"}Built for founders fixing their landing page before launch — not marketers running experiments.
           </p>
           <form
             className="flex flex-col sm:flex-row gap-3"
@@ -117,9 +126,6 @@ export default function Home() {
             </p>
           </div>
           <p className="text-xs text-neutral-500">
-            Powered by OpenRouter. No login required yet.
-          </p>
-          <p className="text-xs text-neutral-500">
             No sign-up • Free • Built for indie founders
           </p>
         </div>
@@ -160,6 +166,45 @@ export default function Home() {
 
         {result && (
           <div className="space-y-6" ref={resultsRef}>
+            {isPro && (
+              <div className="space-y-4">
+                <section className="rounded-2xl border border-neutral-800 bg-white/5 p-6">
+                  <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">
+                    Founder summary (30-second read)
+                  </p>
+                  <p className="mt-4 text-sm text-neutral-100">
+                    The headline is brave but vague; clarify who you help and why
+                    it matters before the scroll ends. Keep the hero simple, call
+                    out the results founders care about, and make sure the CTA
+                    repeats that promise. Drop any fluff that feels like marketing
+                    theater and focus on the action you want them to take next.
+                  </p>
+                </section>
+
+                <section className="rounded-2xl border border-neutral-800 bg-white/5 p-6">
+                  <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">
+                    Fix these in this order
+                  </p>
+                  <ol className="mt-4 space-y-2 text-sm text-neutral-100">
+                    <li>1. Headline clarity</li>
+                    <li>2. Primary CTA copy</li>
+                    <li>3. Social proof placement</li>
+                  </ol>
+                </section>
+
+                <section className="rounded-2xl border border-neutral-800 bg-white/5 p-6">
+                  <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">
+                    Suggested headline improvements
+                  </p>
+                  <p className="mt-4 text-sm text-neutral-100">
+                    Option 1: “Explain clearly who wins and how — then show the
+                    proof.” Option 2: “Turn your promise into a measurable outcome
+                    and lean into confidence.” Both rewords anchor the headline in
+                    outcomes, not features.
+                  </p>
+                </section>
+              </div>
+            )}
             <div
               className={`grid gap-6 md:grid-cols-4 transition-all duration-500 ${
                 revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
@@ -183,7 +228,11 @@ export default function Home() {
               />
               <SectionCard
                 title="Clear Improvements"
-                items={result.improvements}
+                items={
+                  isPro
+                    ? result.improvements
+                    : result.improvements.slice(0, 2)
+                }
                 animate={revealed}
               />
             </div>
