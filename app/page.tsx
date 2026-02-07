@@ -93,6 +93,19 @@ export default function Home() {
               )}
               {loading ? "Roasting..." : "Roast my SaaS"}
             </button>
+            <a
+              href="https://checkout.dodopayments.com/buy/pdt_0NXyRvWvgwMRCl9SPAcey?quantity=1"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-block sm:mt-0"
+            >
+              <button
+                type="button"
+                className="rounded-full border border-white bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-neutral-200"
+              >
+                Upgrade to RevRoast Pro ($9)
+              </button>
+            </a>
           </form>
           <div className="space-y-1 text-xs text-neutral-400">
             <p>
